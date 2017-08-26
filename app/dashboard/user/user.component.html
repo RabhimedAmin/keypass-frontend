@@ -1,0 +1,102 @@
+<div class="wrapper">
+        <div class="sidebar" data-color='red' data-image="">
+                <div class="logo">
+                    <a href="/#/dashboard/" class="simple-text">
+                        <div class="logo-img">
+                            <img height="50%" width="50%" src="/assets/img/lock-flat.png"/>
+                        </div>
+                        Keypass
+                    </a>
+                </div>
+                <div class="sidebar-wrapper">
+                    <div class="nav-container">
+                        <ul class="nav">
+                            <li *ngFor="let menuItem of menuItems" class="{{menuItem.class}}">
+                                <a href="/#/{{ menuItem.path }}">
+                                    <i class="material-icons">{{menuItem.icon}}</i>
+                                    <p>{{menuItem.title}}</p>
+                                </a>
+                            </li>
+                            <li (click)="service.logout()" class="active-pro">
+                                <a href="/#/login">
+                                    <i class="material-icons">exit_to_app</i>
+                                    <p>Logout</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            <div class="sidebar-background" style="background-image: url(../assets/img/sidebar-4.jpg)"></div>
+        </div>
+    <div class="main-panel">
+        <nav class="navbar navbar-transparent navbar-absolute">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+<!-- PROFILE COMPONENT -->
+
+
+<div class="main-content">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header" data-background-color="red">
+                    <h4 class="title">Edit Profile</h4>
+                    <p class="category">Complete your profile</p>
+                </div>
+                <div class="card-content">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group form-black is-floating is-empty">
+                                    <label class="control-label">Username</label>
+                                    <input [(ngModel)]="userChanges.name" name="name" type="text" class="form-control" value="{{ (user$ | async)?.name }}" [disabled]="!editUser">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group form-black is-floating is-empty">
+                                    <label class="control-label">Email</label>
+                                    <input [(ngModel)]="userChanges.email" name="email" type="email" class="form-control" value="{{ (user$ | async)?.email }}" [disabled]="!editUser">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group form-black is-floating is-empty">
+                                    <label class="control-label">Password</label>
+                                    <input [(ngModel)]="userChanges.password" name="password" type="text" class="form-control" value="{{ (user$ | async)?.password }}" [disabled]="!editUser">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group form-black is-floating is-empty">
+                                    <label class="control-label">Function</label>
+                                    <input [(ngModel)]="userChanges.function" name="function" type="text" class="form-control" value="{{ (user$ | async)?.function }}" [disabled]="!editUser || !(user$ | async)?.isAdmin">
+                                </div>
+                            </div>
+                        </div>
+                        <button *ngIf="editUser" (click)="toggleEdit()" type="submit" class="btn btn-danger pull-right">Cancel</button>
+                        <button type="submit" (click)="saveChanges()" class="btn btn-success pull-right"><i class="material-icons">{{ !editUser ? 'edit' : 'check' }} </i> {{ !editUser ? 'Edit Profile' : 'Save Changes' }}</button>
+                        <div class="clearfix"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+
+
+<!-- PROFILE COMPONENT -->
+    </div>
+</div>

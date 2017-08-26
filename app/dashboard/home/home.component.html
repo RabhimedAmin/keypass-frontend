@@ -1,0 +1,681 @@
+<div class="wrapper">
+        <div class="sidebar" data-color='red' data-image="">
+                <div class="logo">
+                    <a href="/#/dashboard/" class="simple-text">
+                        <div class="logo-img">
+                            <img height="50%" width="50%" src="/assets/img/lock-flat.png"/>
+                        </div>
+                        Keypass
+                    </a>
+                </div>
+                <div class="sidebar-wrapper">
+                    <div class="nav-container">
+                        <ul class="nav">
+                            <li *ngFor="let menuItem of menuItems" class="{{menuItem.class}}">
+                                <a href="/#/{{ menuItem.path }}">
+                                    <i class="material-icons">{{menuItem.icon}}</i>
+                                    <p>{{menuItem.title}}</p>
+                                </a>
+                            </li>
+                            <li (click)="service.logout()" class="active-pro">
+                                <a href="/#/login">
+                                    <i class="material-icons">exit_to_app</i>
+                                    <p>Logout</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            <div class="sidebar-background" style="background-image: url(../assets/img/sidebar-4.jpg)"></div>
+        </div>
+
+    <div class="main-panel">
+
+
+
+        <nav class="navbar navbar-transparent navbar-absolute">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        
+        
+        <div class="main-content">
+            <div class="container-fluid">
+                <div class="row">
+
+                    <div class="col-lg-4 col-md-6 col-sm-4">
+                        <div class="card card-stats">
+                            <div class="card-header" data-background-color="orange">
+                                <i class="material-icons">settings_system_daydream</i>
+                            </div>
+                            <div class="card-content">
+                                <p class="category">Resources in use</p>
+                                <h3 class="title">{{ (resources$ | async)?.length }} <small>Resources</small></h3>
+                            </div>
+                            <div class="card-footer">
+                                <div *ngIf="(user$ | async)?.isAdmin || ((user$ | async)?.profile.grantedAuthority == 'MANAGER')" (click)="toggleForm('resource')" class="btn btn-success btn-xs">
+                                <i class="material-icons">add_circle</i> New Resource...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-sm-4">
+                        <div class="card card-stats">
+                            <div class="card-header" data-background-color="green">
+                                <i class="material-icons">supervisor_account</i>
+                            </div>
+                            <div class="card-content">
+                                <p class="category">Active teams</p>
+                                <h3 class="title">{{ (teams$ | async)?.length }} <small>Teams</small></h3>
+                            </div>
+                            <div class="card-footer">
+                                <div *ngIf="(user$ | async)?.isAdmin || ((user$ | async)?.profile.grantedAuthority == 'MANAGER')" (click)="toggleForm('team')" class="btn btn-success btn-xs">
+                                <i class="material-icons">add_circle</i> New Team...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-sm-4">
+                        <div class="card card-stats">
+                            <div class="card-header" data-background-color="red">
+                                <i class="material-icons">person</i>
+                            </div>
+                            <div class="card-content">
+                                <p class="category">Available Members</p>
+                                <h3 class="title">{{ (members$ | async)?.length }} <small>Members</small></h3>
+                            </div>
+                            <div class="card-footer">
+                                <div *ngIf="(user$ | async)?.isAdmin || ((user$ | async)?.profile.grantedAuthority == 'MANAGER')" (click)="toggleForm('member')" class="btn btn-success btn-xs">
+                                <i class="material-icons">add_circle</i> New Member...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            <div *ngIf="showResourceForm" class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header" data-background-color="blue">
+                            <h4 class="title">Add A Resource</h4>
+                            <p class="category">fill the input fields</p>
+                        </div>
+                        <div class="card-content">
+                            <form>
+                                <div class="row">
+
+                                    <div class="col-md-4">
+                                        <div class="form-group form-black label-floating is-empty">
+                                            <label class="control-label">Name</label>
+                                            <input [(ngModel)]="resourceToAdd.name" type="text" name="resource-name"class="form-control" required [disabled]="lastResourceAddedID ? true : false">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group form-black label-floating is-empty">
+                                            <label class="control-label">Protocol</label>
+                                            <input [(ngModel)]="resourceToAdd.protocol" name="protocol" type="text" class="form-control" required [disabled]="lastResourceAddedID ? true : false">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group form-black label-floating is-empty">
+                                            <label class="control-label">Host</label>
+                                            <input [(ngModel)]="resourceToAdd.host" name="host" type="text" class="form-control" required [disabled]="lastResourceAddedID ? true : false">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group form-black label-floating is-empty">
+                                            <label class="control-label">Port</label>
+                                            <input [(ngModel)]="resourceToAdd.port" name="port" type="number" min="0" max="65535" class="form-control" required [disabled]="lastResourceAddedID ? true : false">
+                                        </div>
+                                    </div>
+                                        <div class="col-md-6">
+                                                <input name="expiration"
+                                                class="form-control"
+                                                [min-date]="minExipirationDate"
+                                                [(ngModel)]="resourceToAdd.expirationDate"
+                                                name="expiration-date"
+                                                placeholder="Expiration Date"
+                                                ngui-datetime-picker 
+                                                [disabled]="lastResourceAddedID ? true : false"
+                                                />
+                                        </div>
+
+                                </div>
+                                    <div class="col-md-4">
+                                        <br/>
+                                        <label>Select Type:</label>
+                                        <select class="btn btn-round selectpicker" data-style="btn btn-primary btn-round" title="Single Select" data-size="7" required [(ngModel)]="resourceToAdd.type" name="type" [disabled]="lastResourceAddedID ? true : false">
+                                        <option disabled selected>Choose Type...</option>
+                                        <option value="SERVEURAPPLICATIF">SERVEURAPPLICATIF</option>
+                                        <option value="SERVEURWEB">SERVEURWEB</option>
+                                        <option value="SERVEURBD">SERVEURBD</option>
+                                        <option value="SERVEURSMTP">SERVEURSMTP</option>
+                                        <option value="PLATFORM">PLATFORM</option>
+                                        <option value="OTHER">OTHER</option>
+                                        </select>
+                                    </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Description</label>
+                                            <div class="form-group form-black label-floating is-empty">
+                                                <label class="control-label"> Description and technical specs of the Resource.</label>
+                                                <textarea [(ngModel)]="resourceToAdd.description" name="description" class="form-control" rows="5" required [disabled]="lastResourceAddedID ? true : false"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button (click)="toggleForm('resource')" class="btn btn-danger pull-right" [disabled]="lastResourceAddedID ? true : false">Cancel</button>
+                                <button (click)="addResource()" type="submit" class="btn btn-info pull-right" [disabled]="lastResourceAddedID ? true : false">Add Resource</button>
+                                <div class="clearfix"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header" data-background-color="blue">
+                            <h4 class="title">Add The Resource's Access Account</h4>
+                            <p class="category">fill the input fields</p>
+                        </div>
+                        <div class="card-content">
+                            <form>
+                                <div class="row">
+
+                                    <div class="col-md-12">
+                                        <div class="form-group form-black label-floating is-empty">
+                                            <label class="control-label">Login</label>
+                                            <input [(ngModel)]="resourceAccountToAdd.login" type="text" name="account-login"class="form-control" required [disabled]="lastResourceAddedID ? false : true">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group form-black label-floating is-empty">
+                                            <label class="control-label">Password</label>
+                                            <input [(ngModel)]="resourceAccountToAdd.password" name="account-password" type="text" class="form-control" required [disabled]="lastResourceAddedID ? false : true">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Description</label>
+                                            <div class="form-group form-black label-floating is-empty">
+                                                <label class="control-label"> Description of access account.</label>
+                                                <textarea [(ngModel)]="resourceAccountToAdd.description" name="account-description" class="form-control" rows="5" required [disabled]="lastResourceAddedID ? false : true"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button (click)="addResourceAccount()" type="submit" class="btn btn-info pull-right" [disabled]="lastResourceAddedID ? false : true">Add Account</button>
+                                <div class="clearfix"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="showTeamForm" class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header" data-background-color="blue">
+                            <h4 class="title">Add A Team</h4>
+                            <p class="category">fill the input fields</p>
+                        </div>
+                        <div class="card-content">
+                            <form>
+                                <div class="row">
+
+                                    <div class="col-md-6">
+                                        <div class="form-group form-black label-floating is-empty">
+                                            <label class="control-label">Libelle</label>
+                                            <input [(ngModel)]="teamToAdd.libelle" type="text" name="libelle"class="form-control" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group form-black label-floating is-empty">
+                                            <label class="control-label">Description</label>
+                                            <input [(ngModel)]="teamToAdd.description" name="team-description" type="text" class="form-control" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button (click)="toggleForm('team')" class="btn btn-danger pull-right">Cancel</button>
+                                <button (click)="addTeam()" type="submit" class="btn btn-info pull-right">Add Team</button>
+                                <div class="clearfix"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div *ngIf="showMemberForm" class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header" data-background-color="blue">
+                            <h4 class="title">Add A Member</h4>
+                            <p class="category">fill the input fields</p>
+                        </div>
+                        <div class="card-content">
+                            <form>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group form-black label-floating is-empty">
+                                            <label class="control-label">Name</label>
+                                            <input [(ngModel)]="memberToAdd.name" type="text" name="name" class="form-control" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group form-black label-floating is-empty">
+                                            <label class="control-label">Email</label>
+                                            <input [(ngModel)]="memberToAdd.email" name="email" type="email" class="form-control" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row"> 
+                                    <div class="col-md-4">
+                                        <div class="form-group form-black label-floating is-empty">
+                                            <label class="control-label">Function</label>
+                                            <input [(ngModel)]="memberToAdd.function" name="function" type="text" class="form-control" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group form-black label-floating is-empty">
+                                            <label class="control-label">Password</label>
+                                            <input [(ngModel)]="memberToAdd.password" name="password" type="text" class="form-control" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <br/>                           
+                                        <label>Select Team:</label>
+                                        <select [(ngModel)]="memberToAdd.teamId" class="btn btn-round selectpicker" data-style="btn btn-primary btn-round" title="Single Select" required name="team">
+                                            <option disabled selected>Choose a team...</option>
+                                            <option *ngFor="let team of teams$ | async" [value]="team.id">{{ team.libelle }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <br/>
+                                        <br/>
+                                        <div class="radio">
+                                        <label>
+                                                <input [(ngModel)]="memberToAdd.profileAutoritiesId" value="2" type="radio" name="authority">
+                                                Simple
+                                            </label>
+                                            <label>
+                                                <input [(ngModel)]="memberToAdd.profileAutoritiesId"  value="1" type="radio" name="authority">
+                                                Manager
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button (click)="toggleForm('member')" class="btn btn-danger pull-right">Cancel</button>
+                                <button (click)="addMember()" type="submit" class="btn btn-info pull-right">Add Member</button>
+                                <div class="clearfix"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                <div class="row">
+                    <div class="col-lg-12 col-md-12">
+                        <div class="card card-nav-tabs">
+                            <div class="card-header" data-background-color="purple">
+                                <div class="nav-tabs-navigation">
+                                    <div class="nav-tabs-wrapper">
+                                        <span class="nav-tabs-title">Manage:</span>
+                                        <ul class="nav nav-tabs" data-tabs="tabs">
+                                            <li class="active">
+                                                <a href="#profile" data-toggle="tab">
+                                                        <i class="material-icons">settings_system_daydream</i>
+                                                        Resources
+                                                    <div class="ripple-container"></div></a>
+                                            </li>
+                                            <li class="">
+                                                <a href="#messages" data-toggle="tab">
+                                                    <i class="material-icons">supervisor_account</i>
+                                                        Teams
+                                                    <div class="ripple-container"></div></a>
+                                            </li>
+                                            <li class="">
+                                                <a href="#settings" data-toggle="tab">
+                                                        <i class="material-icons">person</i>
+                                                        Members
+                                                    <div class="ripple-container"></div></a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-content">
+                                <div class="tab-content">
+                                    <div class="tab-pane active" id="profile">
+
+                                        <div class="card-content table-responsive">
+                                            <table class="table table-hover">
+                                                <thead class="text-primary">
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>ID</th>
+                                                        <th>Name</th>
+                                                        <th>Description</th>
+                                                        <th>Protocol</th>
+                                                        <th>Port</th>
+                                                        <th>Type</th>
+                                                        <th>Last Modified At</th>
+                                                        <th>Expiration Date</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr *ngFor="let resource of resources$ | async; let i = index">
+                                                        <td>
+                                                        </td>
+                                                        <td>{{ resource.id }}</td>
+                                                        <td *ngIf="resourcesToEdit[resource.id]">
+                                                            <div class="form-group form-black label-floating is-focused">
+                                                                <label class="control-label">Name</label>
+                                                                <input [(ngModel)]="resourceToPut.name" type="text" value="{{ resource.name }}" class="form-control" requiredrequired>
+                                                            </div>
+                                                        </td>
+                                                        <td *ngIf="!resourcesToEdit[resource.id]">{{ resource.name }}</td>
+                                                        
+                                                        <td *ngIf="resourcesToEdit[resource.id]">
+                                                            <div class="form-group form-black label-floating is-focused">
+                                                                <label class="control-label">Description</label>
+                                                                <input [(ngModel)]="resourceToPut.description" type="text" value="{{ resource.description }}" class="form-control" requiredrequired>
+                                                            </div>
+                                                        </td>
+                                                        <td *ngIf="!resourcesToEdit[resource.id]">{{ resource.description }}</td>
+                                        
+                                                        <td *ngIf="resourcesToEdit[resource.id]">
+                                                            <div class="form-group form-black label-floating is-focused">
+                                                                <label class="control-label">Description</label>
+                                                                <input  [(ngModel)]="resourceToPut.protocol" type="text" value="{{ resource.protocol }}" class="form-control" requiredrequired>
+                                                            </div>
+                                                        </td>
+                                                        <td *ngIf="!resourcesToEdit[resource.id]">{{ resource.protocol }}</td>
+
+                                                        <td *ngIf="resourcesToEdit[resource.id]">
+                                                            <div class="form-group form-black label-floating is-focused">
+                                                                <label class="control-label">Port</label>
+                                                                <input  [(ngModel)]="resourceToPut.port" type="text" value="{{ resource.port }}" class="form-control" requiredrequired>
+                                                            </div>
+                                                        </td>
+                                                        <td *ngIf="!resourcesToEdit[resource.id]">{{ resource.port }}</td>
+
+                                                        <td *ngIf="resourcesToEdit[resource.id]">
+                                                            <div class="form-group form-black label-floating is-focused">
+                                                                <label class="control-label">Type</label>
+                                                                <input [(ngModel)]="resourceToPut.type" type="text" value="{{ resource.type }}" class="form-control" requiredrequired>
+                                                            </div>
+                                                        </td>
+                                                        <td *ngIf="!resourcesToEdit[resource.id]">{{ resource.type }}</td>
+
+                                                        <td>{{ resource.modificationDate | date:'medium' }}</td>
+                                                        <td *ngIf="resourcesToEdit[resource.id]">
+                                                            <div class="form-group form-black label-floating is-focused">
+                                                                <label class="control-label">Expiration Date</label>
+                                                                <input [(ngModel)]="resourceToPut.expirationDate" type="text" value="{{ resource.expirationDate }}" class="form-control" requiredrequired>
+                                                            </div>
+                                                        </td>
+                                                        <td *ngIf="!resourcesToEdit[resource.id]">{{ resource.expirationDate | date:'medium' }}</td>
+                                                       
+                                                        <td *ngIf="!resourcesToEdit[resource.id] && ((user$ | async)?.isAdmin)" class="td-actions text-right">
+                                                            <button (click)="editResource(resource.id, i)" type="button" rel="tooltip" title="Edit Task" class="btn btn-primary btn-simple btn-xs">
+                                                                <i class="material-icons">edit</i>
+                                                            </button>
+                                                            <button (click)="deleteResource(resource)" type="button" rel="tooltip" title="Remove" class="btn btn-danger btn-simple btn-xs">
+                                                                <i class="material-icons">delete_sweep</i>
+                                                            </button>
+                                                        </td>
+
+                                                        <td *ngIf="resourcesToEdit[resource.id]" class="td-actions text-right">
+                                                            <button (click)="updateResource(i)" type="button" rel="tooltip" title="Edit Resource" class="btn btn-success btn-simple btn-xs">
+                                                                <i class="material-icons">done</i>
+                                                        </button>
+                                                            <button (click)="editResource(resource.id)" type="button" rel="tooltip" title="Close" class="btn btn-danger btn-simple btn-xs">
+                                                                <i class="material-icons">close</i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="tab-pane" id="messages">
+                                        <table class="table table-hover">
+                                                <thead class="text-primary">
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>ID</th>
+                                                        <th>Description</th>
+                                                        <th>Libelle</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr *ngFor="let team of teams$ | async; let i = index">
+                                                        <td>
+                                                        </td>
+                                                        <td>{{ team.id }}</td>
+
+                                                        <td *ngIf="teamsToEdit[team.id]">
+                                                            <div class="form-group form-black label-floating is-focused">
+                                                                <label class="control-label">Libelle</label>
+                                                                <input [(ngModel)]="teamToPut.libelle" type="text" value="{{ team.libelle }}" class="form-control" required>
+                                                            </div>
+                                                        </td>
+                                                        <td *ngIf="!teamsToEdit[team.id]">{{ team.libelle }}</td>
+                                                        
+
+                                                        <td *ngIf="teamsToEdit[team.id]">
+                                                            <div class="form-group form-black label-floating is-focused">
+                                                                <label class="control-label">Description</label>
+                                                                <input [(ngModel)]="teamToPut.description" type="text" value="{{ team.description }}" class="form-control" required>
+                                                            </div>
+                                                        </td>
+                                                        <td *ngIf="!teamsToEdit[team.id]">{{ team.description }}</td>
+
+                                                        <td *ngIf="!teamsToEdit[team.id] && (user$ | async)?.isAdmin" class="td-actions text-right">
+                                                            <button (click)="editTeam(team.id, i)" type="button" rel="tooltip" title="Edit Task" class="btn btn-primary btn-simple btn-xs">
+                                                                <i class="material-icons">edit</i>
+                                                        </button>
+                                                            <button (click)="deleteTeam(team)" type="button" rel="tooltip" title="Remove" class="btn btn-danger btn-simple btn-xs">
+                                                                <i class="material-icons">delete_sweep</i>
+                                                            </button>
+                                                        </td>
+
+                                                        <td *ngIf="teamsToEdit[team.id]" class="td-actions text-right">
+                                                            <button (click)="updateTeam(i)" type="button" rel="tooltip" title="Edit Resource" class="btn btn-success btn-simple btn-xs">
+                                                                <i class="material-icons">done</i>
+                                                        </button>
+                                                            <button (click)="editTeam(team.id)" type="button" rel="tooltip" title="Close" class="btn btn-danger btn-simple btn-xs">
+                                                                <i class="material-icons">close</i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                    </div>
+                                    <div class="tab-pane" id="settings">
+                                            <table class="table table-hover">
+                                                <thead class="text-primary">
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>ID</th>
+                                                        <th>Name</th>
+                                                        <th>Email</th>
+                                                        <th>Function</th>
+                                                        <th>Team ID</th>
+                                                        <th>Granted Authority</th>
+                                                        <th></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                <tbody>
+                                                    <tr *ngFor="let member of members$ | async; let i = index">
+                                                        <td>
+                                                        </td>
+                                                        <td>{{ member.id }}</td>
+
+                                                        <td *ngIf="membersToEdit[member.id]">
+                                                            <div class="form-group form-black label-floating is-focused">
+                                                                <label class="control-label">Name</label>
+                                                                <input [(ngModel)]="memberToPut.name" type="text" value="{{ member.name }}" class="form-control" required>
+                                                            </div>
+                                                        </td>
+                                                        <td *ngIf="!membersToEdit[member.id]">{{ member.name }}</td>
+                                                        
+
+                                                        <td *ngIf="membersToEdit[member.id]">
+                                                            <div class="form-group form-black label-floating is-focused">
+                                                                <label class="control-label">Email</label>
+                                                                <input [(ngModel)]="memberToPut.email" type="text" value="{{ member.email }}" class="form-control" required>
+                                                            </div>
+                                                        </td>
+                                                        <td *ngIf="!membersToEdit[member.id]">{{ member.email }}</td>
+
+                                                        <td *ngIf="membersToEdit[member.id]">
+                                                            <div class="form-group form-black label-floating is-focused">
+                                                                <label class="control-label">Function</label>
+                                                                <input [(ngModel)]="memberToPut.function" type="text" value="{{ member.function }}" class="form-control" required>
+                                                            </div>
+                                                        </td>
+                                                        <td *ngIf="!membersToEdit[member.id]">{{ member.function }}</td>
+
+                                                        <td *ngIf="membersToEdit[member.id]">
+                                                            <div class="form-group form-black label-floating is-focused">
+                                                                <label class="control-label">Team ID</label>
+                                                                <input [(ngModel)]="memberToPut.teamId" type="text" value="{{ member.team.id }}" class="form-control" required>
+                                                            </div>
+                                                        </td>
+                                                        <td *ngIf="!membersToEdit[member.id]">{{ member.team.id }}</td>
+
+                                                        <td *ngIf="membersToEdit[member.id]">
+                                                            <div class="form-group form-black label-floating is-focused">
+                                                                <div class="radio">
+                                                                    <label>
+                                                                        <input [(ngModel)]="profileToPut" value="2" type="radio" name="authority">
+                                                                        Simple
+                                                                    </label>
+                                                                    <label>
+                                                                        <input [(ngModel)]="profileToPut" value="1" type="radio" name="authority">
+                                                                        Manager
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td *ngIf="!membersToEdit[member.id]">{{ member.profile.grantedAuthority }}</td>
+
+                                                        <td *ngIf="!membersToEdit[member.id] && (user$ | async)?.isAdmin" class="td-actions text-right">
+                                                            <button (click)="editMember(member.id, i)" type="button" rel="tooltip" title="Edit Task" class="btn btn-primary btn-simple btn-xs">
+                                                                <i class="material-icons">edit</i>
+                                                        </button>
+                                                            <button (click)="deleteMember(member)" type="button" rel="tooltip" title="Remove" class="btn btn-danger btn-simple btn-xs">
+                                                                <i class="material-icons">delete_sweep</i>
+                                                            </button>
+                                                        </td>
+
+                                                        <td *ngIf="membersToEdit[member.id]" class="td-actions text-right">
+                                                            <button (click)="updateMember(i, profileToPut)" type="button" rel="tooltip" title="Edit Resource" class="btn btn-success btn-simple btn-xs">
+                                                                <i class="material-icons">done</i>
+                                                        </button>
+                                                            <button (click)="editMember(member.id)" type="button" rel="tooltip" title="Close" class="btn btn-danger btn-simple btn-xs">
+                                                                <i class="material-icons">close</i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="(user$ | async)?.isAdmin" class="col-lg-12 col-md-12">
+                        <div class="card">
+                            <div class="card-header" data-background-color="orange">
+                                <h4 class="title">Resource Managers</h4>
+                                <p class="category">Grant Or Revoke Resource Management</p>
+                            </div>
+                            <div class="card-content table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="text-warning">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Function</th>
+                                            <th>Managed Resources</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let member of members$ | async">
+                                            <td *ngIf="member.profile.grantedAuthority == 'MANAGER'">{{ member.id }}</td>
+                                            <td *ngIf="member.profile.grantedAuthority == 'MANAGER'">{{ member.name }}</td>
+                                            <td *ngIf="member.profile.grantedAuthority == 'MANAGER'">{{ member.function }}</td>
+                                            <td *ngIf="member.profile.grantedAuthority == 'MANAGER'">
+                                                <ul *ngFor="let res of memberResources$[member.id] | async" style="list-style: none;">
+                                                    <li style="display:flex"><h4><b>{{ res.name }}</b></h4>
+                                                    <button (click)="revokeAccess(member.id, res.id)" type="button" rel="tooltip" title="Revoke Access" class="btn btn-danger btn-simple btn-xs">
+                                                        <i class="material-icons">delete_sweep</i>
+                                                    </button>
+                                                    </li>
+                                                    <li> <b>Type:</b> {{ res.type }}</li>
+                                                </ul>
+                                            </td>
+                                            <td *ngIf="member.profile.grantedAuthority == 'MANAGER'">
+                                                <div *ngIf="!membersResToEdit[member.id]" (click)="editMemberRes(member.id)" class="btn btn-success btn-xs">
+                                                    <i class="material-icons">add_circle</i> Grant New Managing Access...
+                                                </div>
+                                                <div *ngIf="membersResToEdit[member.id]" class="col-md-4">
+                                                    <label>Select Resource:</label>
+                                                    <select [(ngModel)]="newGrantedResource[member.id]" class="btn btn-round selectpicker" data-style="btn btn-primary btn-round" title="Single Select" data-size="7" required [(ngModel)]="resourceToAdd.type" name="type" [disabled]="lastResourceAddedID ? true : false">
+                                                        <option disabled selected>Choose a resource...</option>
+                                                        <option *ngFor="let res of resources$ | async" [value]="res.id">{{ res.name }}</option>
+                                                    </select>
+                                                </div>
+                                            </td>
+                                            <td *ngIf="membersResToEdit[member.id]" class="td-actions text-right">
+                                                <button (click)="grantAccess(member)" type="button" rel="tooltip" title="Edit Resource" class="btn btn-success btn-simple btn-xs">
+                                                    <i class="material-icons">done</i>
+                                                </button>
+                                                <button (click)="editMemberRes(member.id)" type="button" rel="tooltip" title="Close" class="btn btn-danger btn-simple btn-xs">
+                                                    <i class="material-icons">close</i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

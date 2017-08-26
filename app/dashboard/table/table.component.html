@@ -1,0 +1,212 @@
+<div class="wrapper">
+    <div class="sidebar" data-color='red' data-image="">
+        <div class="logo">
+            <a href="/#/dashboard/" class="simple-text">
+                <div class="logo-img">
+                    <img height="50%" width="50%" src="/assets/img/lock-flat.png" />
+                </div>
+                Keypass
+            </a>
+        </div>
+        <div class="sidebar-wrapper">
+            <div class="nav-container">
+                <ul class="nav">
+                    <li *ngFor="let menuItem of menuItems" class="{{menuItem.class}}">
+                        <a href="/#/{{ menuItem.path }}">
+                                    <i class="material-icons">{{menuItem.icon}}</i>
+                                    <p>{{menuItem.title}}</p>
+                                </a>
+                    </li>
+                    <li (click)="service.logout()" class="active-pro">
+                        <a href="/#/login">
+                            <i class="material-icons">exit_to_app</i>
+                            <p>Logout</p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="sidebar-background" style="background-image: url(../assets/img/sidebar-4.jpg)"></div>
+    </div>
+    <div class="main-panel">
+        <nav class="navbar navbar-transparent navbar-absolute">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- PROFILE COMPONENT -->
+        <div class="main-content">
+            <div class="container-fluid">
+                <div *ngIf="(user$ | async)?.isAdmin || (user$ | async)?.profile.grantedAuthority == 'MANAGER'" class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header" data-background-color="red">
+                                <h4 class="title">Resources's Accounts</h4>
+                                <p class="category">The login accounts to the available resources.</p>
+                            </div>
+                            <div class="card-content table-responsive">
+                                <table class="table">
+                                    <thead class="text-danger">
+                                        <tr>
+                                            <th>Resource</th>
+                                            <th>Access Accounts</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let res of userResources$ | async; let i=index">
+                                            <td>{{ res.name }}</td>
+
+                                            <td>
+                                                <ul *ngFor="let account of res.accountsRessource; let j=index" style="list-style: none;">
+                                                    <li *ngIf="!profilesToEdit[account.id]" style="display:flex">
+                                                        <b>Login: </b> {{account.login}}
+                                                        <div *ngIf="!profilesToEdit[account.id] && ((user$ | async)?.isAdmin || (user$ | async)?.profile.grantedAuthority == 'MANAGER')" class="td-actions text-right">
+                                                            <button (click)="editProfile(account.id, i, j)" type="button" rel="tooltip" title="Edit Task" class="btn btn-primary btn-simple btn-xs">
+                                                               <i class="material-icons">edit</i>
+                                                            </button>
+                                                            <button (click)="deleteProfile(account)" type="button" rel="tooltip" title="Remove" class="btn btn-danger btn-simple btn-xs">
+                                                               <i class="material-icons">delete_sweep</i>
+                                                            </button>
+                                                        </div>
+                                                    </li>
+                                                    <li *ngIf="profilesToEdit[account.id]">
+                                                        <div class="form-group form-black label-floating is-focused">
+                                                            <label class="control-label">Login</label>
+                                                            <input [(ngModel)]="profileToPut.login" type="text" name="login" value="{{ account.login }}" class="form-control" required>
+                                                        </div>
+                                                    </li>
+
+                                                    <li *ngIf="!profilesToEdit[account.id]"><b>Password: </b> {{account.password}}</li>
+                                                    <li *ngIf="profilesToEdit[account.id]">
+                                                        <div class="form-group form-black label-floating is-focused">
+                                                            <label class="control-label">Password</label>
+                                                            <input [(ngModel)]="profileToPut.newPassword" type="text" name="password" value="{{ account.password }}" class="form-control"
+                                                                required>
+                                                        </div>
+                                                    </li>
+
+                                                    <li *ngIf="!profilesToEdit[account.id]"><small style="color:#888">{{account.description}}</small></li>
+                                                    <li *ngIf="profilesToEdit[account.id]">
+                                                        <div class="form-group form-black label-floating is-focused">
+                                                            <label class="control-label">Description</label>
+                                                            <input [(ngModel)]="profileToPut.description" type="text" name="description" value="{{ account.description }}" class="form-control"
+                                                                required>
+                                                        </div>
+                                                    </li>
+                                                    <hr *ngIf="j+1 != res.accountsRessource.length">
+
+                                                    <div *ngIf="profilesToEdit[account.id]" class="td-actions text-right">
+                                                        <button (click)="updateProfile(i)" type="button" rel="tooltip" title="Edit Resource" class="btn btn-success btn-simple btn-xs">
+                                                            <i class="material-icons">done</i>
+                                                    </button>
+                                                        <button (click)="editProfile(account.id)" type="button" rel="tooltip" title="Close" class="btn btn-danger btn-simple btn-xs">
+                                                            <i class="material-icons">close</i>
+                                                    </button>
+                                                    </div>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header" data-background-color="red">
+                                <h4 class="title">User's Shared Accounts</h4>
+                                <p class="category">Your Accounts..</p>
+                            </div>
+                            <div class="card-content table-responsive">
+                                <table class="table">
+                                    <thead class="text-danger">
+                                        <tr>
+                                            <th>Login</th>
+                                            <th>Password</th>
+                                            <th>Description</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let account of userAccounts$ | async">
+                                            <td>{{ account.login }}</td>
+                                            <td>{{ account.password }}</td>
+                                            <td>{{ account.description }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header" data-background-color="blue">
+                            <h4 class="title">Send Request</h4>
+                            <p class="category">Send An Access Account Request For A Specific Resource</p>
+                        </div>
+                        <div class="card-content">
+                            <form>
+                                <div class="row">                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group form-black label-floating is-empty">
+                                            <label class="control-label">Login</label>
+                                            <input [(ngModel)]="accountToAdd.login" type="text" name="login"class="form-control" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group form-black label-floating is-empty">
+                                            <label class="control-label">Password</label>
+                                            <input [(ngModel)]="accountToAdd.password" type="text" name="password"class="form-control" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label>Select Resource:</label>
+                                        <select [(ngModel)]="resourceId" class="btn btn-round selectpicker" data-style="btn btn-primary btn-round" title="Single Select"
+                                            data-size="7" required name="type">
+                                            <option disabled selected>Choose a resource...</option>
+                                            <option *ngFor="let res of resources$ | async" [value]="res.id">{{ res.name }}</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Description</label>
+                                            <div class="form-group form-black label-floating is-empty">
+                                                <label class="control-label">Describe Access Account.</label>
+                                                <textarea [(ngModel)]="accountToAdd.description" name="account-description" class="form-control" rows="5" required></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button (click)="addAccount()" type="submit" class="btn btn-info pull-right">Add Access Account.</button>
+                                <div class="clearfix"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+        <!-- PROFILE COMPONENT -->
+    </div>
+</div>

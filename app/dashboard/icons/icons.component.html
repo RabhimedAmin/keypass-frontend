@@ -1,0 +1,168 @@
+<div class="wrapper">
+    <div class="sidebar" data-color='red' data-image="">
+        <div class="logo">
+            <a href="/#/dashboard/" class="simple-text">
+                <div class="logo-img">
+                    <img height="50%" width="50%" src="/assets/img/lock-flat.png" />
+                </div>
+                Keypass
+            </a>
+        </div>
+        <div class="sidebar-wrapper">
+            <div class="nav-container">
+                <ul class="nav">
+                    <li *ngFor="let menuItem of menuItems" class="{{menuItem.class}}">
+                        <a href="/#/{{ menuItem.path }}">
+                                    <i class="material-icons">{{menuItem.icon}}</i>
+                                    <p>{{menuItem.title}}</p>
+                                </a>
+                    </li>
+                    <li (click)="service.logout()" class="active-pro">
+                        <a href="/#/login">
+                            <i class="material-icons">exit_to_app</i>
+                            <p>Logout</p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="sidebar-background" style="background-image: url(../assets/img/sidebar-4.jpg)"></div>
+    </div>
+    <div class="main-panel">
+        <nav class="navbar navbar-transparent navbar-absolute">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- PROFILE COMPONENT -->
+        <div class="main-content">
+            <div class="container-fluid">
+                <div *ngIf="(user$ | async)?.isAdmin || (user$ | async)?.profile.grantedAuthority == 'MANAGER'" class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header" data-background-color="red">
+                                <h4 class="title">Received Requests</h4>
+                                <p class="category">.</p>
+                            </div>
+                            <div class="card-content table-responsive">
+                                <table class="table">
+                                    <thead class="text-danger">
+                                        <tr *ngIf="(recievedRequests$ | async)?.length > 0">
+                                            <th>Request from..</th>
+                                            <th>Demanding Access To..</th>
+                                            <th>Goals</th>
+                                            <th>Status</th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody *ngIf="(recievedRequests$ | async)?.length > 0">
+                                        <tr *ngFor="let request of recievedRequests$ | async">
+                                            <td>{{ request.requester.name }}</td>
+                                            <td>{{ request.resource.name }}</td>
+                                            <td>{{ request.goals }}</td>
+                                            <td *ngIf="request.statu !== 'onHold'">{{ request.statu }}</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td>
+                                                <button *ngIf="request.statu == 'onHold'" (click)="handleRequest(request, true)" class="btn btn-success pull-rigth">Confirm Request.</button>
+                                                <button *ngIf="request.statu == 'onHold'" (click)="handleRequest(request, false)" class="btn btn-danger">Cancel.</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tbody *ngIf="(recievedRequests$ | async)?.length == 0">
+                                        <tr>
+                                            <h2>No received requests at this time.</h2>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header" data-background-color="red">
+                                <h4 class="title">Sent Requests</h4>
+                                <p class="category">Your requests..</p>
+                            </div>
+                            <div class="card-content table-responsive">
+                                <table class="table">
+                                    <thead class="text-danger">
+                                        <tr>
+                                            <th>Demanding Access To..</th>
+                                            <th>Goals</th>
+                                            <th>Status</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let request of allRequests$ | async">
+                                            <td *ngIf="request.requester.id == userId">{{ request.ressource.name }}</td>
+                                            <td *ngIf="request.requester.id == userId">{{ request.goals }}</td>
+                                            <td *ngIf="request.requester.id == userId">{{ request.statu }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header" data-background-color="blue">
+                            <h4 class="title">Send Request</h4>
+                            <p class="category">Send An Access Account Request For A Specific Resource</p>
+                        </div>
+                        <div class="card-content">
+                            <form>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label>Select Resource:</label>
+                                        <select [(ngModel)]="request.idResource" class="btn btn-round selectpicker" data-style="btn btn-primary btn-round" title="Single Select"
+                                            data-size="7" required name="type">
+                                            <option disabled selected>Choose a resource...</option>
+                                            <option *ngFor="let res of resources$ | async" [value]="res.id">{{ res.name }}</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Goals</label>
+                                            <div class="form-group form-black label-floating is-empty">
+                                                <label class="control-label">Specify you goals.</label>
+                                                <textarea [(ngModel)]="request.goals" name="account-description" class="form-control" rows="5" required></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button (click)="sendRequest()" type="submit" class="btn btn-info pull-right">Send Request.</button>
+                                <div class="clearfix"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- PROFILE COMPONENT -->
+    </div>
+</div>
